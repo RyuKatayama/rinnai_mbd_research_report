@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBD（モデルベース開発）給湯器開発への適用可能性調査</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e3a8a;
+            --secondary: #dc2626;
+            --accent: #2563eb;
+            --success: #059669;
+            --warning: #d97706;
+            --bg-light: #f1f5f9;
+            --bg-white: #ffffff;
+            --text-dark: #0f172a;
+            --text-medium: #475569;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            --gradient-accent: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.8;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Header */
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(15, 23, 42, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.02em;
+        }
+
+        header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-weight: 300;
+        }
+
+        header .meta {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.95rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+        }
+
+        nav a:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Sections */
+        section {
+            background: white;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--secondary);
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-light);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        h3::before {
+            content: '▸';
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            color: var(--accent);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-medium);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            margin: 1.5rem 0;
+        }
+
+        .card.highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left-color: var(--warning);
+        }
+
+        .card.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left-color: var(--success);
+        }
+
+        .card.danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left-color: var(--secondary);
+        }
+
+        .card.primary {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left-color: var(--accent);
+        }
+
+        /* Key Point Box */
+        .key-point {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key-point::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            font-size: 8rem;
+            opacity: 0.1;
+            font-family: Georgia, serif;
+        }
+
+        .key-point p {
+            color: white;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-medium);
+        }
+
+        /* Diagrams */
+        .diagram-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .diagram-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px dashed var(--border);
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+
+        tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 1.8rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.35);
+        }
+
+        .stat-card.success {
+            background: var(--gradient-success);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);
+        }
+
+        .stat-card.warning {
+            background: var(--gradient-warning);
+            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.25);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* Code */
+        code {
+            background: var(--primary);
+            color: #e2e8f0;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Blockquote */
+        blockquote {
+            border-left: 4px solid var(--secondary);
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--text-medium);
+            background: var(--bg-light);
+            border-radius: 0 12px 12px 0;
+            position: relative;
+        }
+
+        blockquote::before {
+            content: '"';
+            position: absolute;
+            top: 0;
+            left: 1rem;
+            font-size: 3rem;
+            color: var(--secondary);
+            opacity: 0.3;
+            font-family: Georgia, serif;
+        }
+
+        /* Links */
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .formula-box .formula {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #fbbf24;
+        }
+
+        .formula-box .example {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--accent);
+        }
+
+        .timeline-item h4 {
+            margin-top: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            nav {
+                display: none;
+            }
+
+            section {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            header {
+                background: #1e3a8a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-badge">📊 調査報告書</div>
+            <h1>MBD（モデルベース開発）</h1>
+            <div class="subtitle">給湯器開発への適用可能性調査<br>― エアコン制御事例・マツダSKYACTIVエンジン事例より ―</div>
+            <div class="meta">
+                <span>📅 2026年1月31日</span>
+                <span>🏢 対象：リンナイ株式会社 電子開発部</span>
+            </div>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#overview">調査概要</a></li>
+                <li><a href="#aircon">エアコン事例</a></li>
+                <li><a href="#mazda">マツダ事例</a></li>
+                <li><a href="#proposal">適用提案</a></li>
+                <li><a href="#summary">まとめ</a></li>
+            </ul>
+        </nav>
+
+        <!-- Section 1: 調査概要 -->
+        <section id="overview">
+            <h2>1. 調査概要</h2>
+            
+            <p>リンナイ株式会社の給湯器開発における開発効率化の可能性を検討するため、他業界のMBD（モデルベース開発）事例を調査しました。</p>
+
+            <div class="card highlight">
+                <h4>🎯 調査の狙い</h4>
+                <p style="margin-bottom: 0;">給湯器開発は、温度制御・燃焼制御という点でエアコンやエンジンと類似性があります。これらの事例から、<strong>「詳細な物理現象シミュレーションではなく、熱収支レベルのマクロモデルで制御開発を効率化できる」</strong>という仮説を検証しました。</p>
+            </div>
+
+            <h3>調査対象事例</h3>
+
+            <div class="diagram-container">
+                <div class="diagram-title">調査対象と給湯器への関連性</div>
+                <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="800" height="320" fill="#f8fafc"/>
+                    
+                    <!-- Air Conditioner Case -->
+                    <g id="aircon-case">
+                        <rect x="50" y="50" width="200" height="120" fill="#3b82f6" stroke="#1e40af" stroke-width="2" rx="12"/>
+                        <text x="150" y="85" text-anchor="middle" fill="white" font-size="14" font-weight="bold">🌡️ エアコン制御事例</text>
+                        <text x="150" y="110" text-anchor="middle" fill="white" font-size="11">ブロア・温度制御</text>
+                        <text x="150" y="130" text-anchor="middle" fill="white" font-size="11">MBD適用（電通総研）</text>
+                        <text x="150" y="155" text-anchor="middle" fill="#bfdbfe" font-size="10">メカ・制御連携の考え方</text>
+                    </g>
+                    
+                    <!-- Mazda Case -->
+                    <g id="mazda-case">
+                        <rect x="550" y="50" width="200" height="120" fill="#dc2626" stroke="#b91c1c" stroke-width="2" rx="12"/>
+                        <text x="650" y="85" text-anchor="middle" fill="white" font-size="14" font-weight="bold">🚗 マツダ事例</text>
+                        <text x="650" y="110" text-anchor="middle" fill="white" font-size="11">SKYACTIVエンジン開発</text>
+                        <text x="650" y="130" text-anchor="middle" fill="white" font-size="11">MBSE/CAE活用</text>
+                        <text x="650" y="155" text-anchor="middle" fill="#fecaca" font-size="10">生産性2倍以上向上</text>
+                    </g>
+                    
+                    <!-- Arrows -->
+                    <path d="M 250 110 L 320 110 L 320 200" stroke="#3b82f6" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+                    <path d="M 550 110 L 480 110 L 480 200" stroke="#dc2626" stroke-width="3" fill="none" marker-end="url(#arrow-red)"/>
+                    
+                    <!-- Center: Water Heater -->
+                    <g id="water-heater">
+                        <rect x="300" y="200" width="200" height="100" fill="#059669" stroke="#047857" stroke-width="3" rx="12"/>
+                        <text x="400" y="235" text-anchor="middle" fill="white" font-size="16" font-weight="bold">🔥 給湯器開発</text>
+                        <text x="400" y="260" text-anchor="middle" fill="white" font-size="12">温度制御・燃焼制御</text>
+                        <text x="400" y="282" text-anchor="middle" fill="#a7f3d0" font-size="10">リンナイ株式会社</text>
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="285" y="150" text-anchor="middle" font-size="10" fill="#3b82f6" font-weight="bold">温度制御</text>
+                    <text x="285" y="165" text-anchor="middle" font-size="10" fill="#3b82f6">の類似性</text>
+                    
+                    <text x="515" y="150" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="bold">燃焼制御</text>
+                    <text x="515" y="165" text-anchor="middle" font-size="10" fill="#dc2626">の類似性</text>
+                    
+                    <defs>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
+                        </marker>
+                        <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+
+            <div class="key-point">
+                <p><strong>核心的な発見：</strong>「熱収支レベルのマクロモデルで十分」― 詳細なCFD燃焼シミュレーションは不要</p>
+            </div>
+        </section>
+
+        <!-- Section 2: エアコン制御MBD事例 -->
+        <section id="aircon">
+            <h2>2. エアコン制御MBD事例の詳細</h2>
+
+            <div class="card">
+                <p><span class="badge badge-primary">出典</span> 電通総研「モデルベース開発（MBD）におけるメカ・制御連携の考え方」2023年1月</p>
+                <p style="margin-bottom: 0;"><a href="https://mfg.dentsusoken.com/blog/detail/001416.php" target="_blank">詳細はこちら →</a></p>
+            </div>
+
+            <h3>制御の本質的定義</h3>
+
+            <div class="key-point">
+                <p><strong>「制御はメカの機能目標を達成するための調整機能」</strong></p>
+            </div>
+
+            <p>この定義は給湯器にも直接適用できます。給湯器の制御は、「設定温度の湯を安定供給する」というメカ（熱交換器・バーナー）の機能目標を達成するために、ガス流量や水流量を調整する役割を担います。</p>
+
+            <h3>エアコンブロア制御フロー vs 給湯器制御フロー</h3>
+
+            <div class="diagram-container">
+                <div class="diagram-title">制御フローの比較：エアコン vs 給湯器</div>
+                <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="800" height="500" fill="#f8fafc"/>
+                    
+                    <!-- Title: Air Conditioner -->
+                    <text x="200" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#3b82f6">🌡️ エアコンブロア制御</text>
+                    
+                    <!-- Air Conditioner Flow -->
+                    <g id="aircon-flow">
+                        <!-- Step 1: 検知 -->
+                        <rect x="50" y="60" width="140" height="80" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="120" y="85" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">① 検知</text>
+                        <text x="120" y="105" text-anchor="middle" font-size="10" fill="#1e40af">温度センサーが</text>
+                        <text x="120" y="120" text-anchor="middle" font-size="10" fill="#1e40af">室温を検知</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 120 140 L 120 165" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-b)"/>
+                        
+                        <!-- Step 2: 計算 -->
+                        <rect x="50" y="170" width="140" height="100" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="120" y="195" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">② 計算</text>
+                        <text x="120" y="215" text-anchor="middle" font-size="10" fill="#1e40af">吸入空気量の</text>
+                        <text x="120" y="230" text-anchor="middle" font-size="10" fill="#1e40af">目標値を計算</text>
+                        <text x="120" y="250" text-anchor="middle" font-size="10" fill="#1e40af">→モーター電力算出</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 120 270 L 120 295" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-b)"/>
+                        
+                        <!-- Step 3: 調整 -->
+                        <rect x="50" y="300" width="140" height="80" fill="#93c5fd" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="120" y="325" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e3a8a">③ 調整</text>
+                        <text x="120" y="345" text-anchor="middle" font-size="10" fill="#1e3a8a">ブロアユニットの</text>
+                        <text x="120" y="360" text-anchor="middle" font-size="10" fill="#1e3a8a">モーター電力調整</text>
+                    </g>
+                    
+                    <!-- Center Arrow -->
+                    <g id="center-comparison">
+                        <rect x="300" y="180" width="200" height="140" fill="#f0fdf4" stroke="#059669" stroke-width="3" rx="12" stroke-dasharray="5,5"/>
+                        <text x="400" y="210" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">共通パターン</text>
+                        <text x="400" y="240" text-anchor="middle" font-size="11" fill="#047857">① センサーで現在状態を検知</text>
+                        <text x="400" y="265" text-anchor="middle" font-size="11" fill="#047857">② 制御システムで目標値計算</text>
+                        <text x="400" y="290" text-anchor="middle" font-size="11" fill="#047857">③ アクチュエータを調整</text>
+                    </g>
+                    
+                    <!-- Title: Water Heater -->
+                    <text x="600" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#dc2626">🔥 給湯器制御</text>
+                    
+                    <!-- Water Heater Flow -->
+                    <g id="heater-flow">
+                        <!-- Step 1: 検知 -->
+                        <rect x="510" y="60" width="180" height="100" fill="#fee2e2" stroke="#dc2626" stroke-width="2" rx="8"/>
+                        <text x="600" y="85" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c">① 検知</text>
+                        <text x="600" y="105" text-anchor="middle" font-size="10" fill="#b91c1c">入水温度: 5°C</text>
+                        <text x="600" y="120" text-anchor="middle" font-size="10" fill="#b91c1c">流量: 20L/分</text>
+                        <text x="600" y="135" text-anchor="middle" font-size="10" fill="#b91c1c">出湯温度センサー</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 600 160 L 600 185" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-r)"/>
+                        
+                        <!-- Step 2: 計算 -->
+                        <rect x="510" y="190" width="180" height="100" fill="#fecaca" stroke="#dc2626" stroke-width="2" rx="8"/>
+                        <text x="600" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c">② 計算</text>
+                        <text x="600" y="235" text-anchor="middle" font-size="10" fill="#b91c1c">目標温度43℃を実現</text>
+                        <text x="600" y="250" text-anchor="middle" font-size="10" fill="#b91c1c">必要熱量を熱収支式で計算</text>
+                        <text x="600" y="265" text-anchor="middle" font-size="10" fill="#b91c1c">→必要ガス流量算出</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 600 290 L 600 315" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-r)"/>
+                        
+                        <!-- Step 3: 調整 -->
+                        <rect x="510" y="320" width="180" height="80" fill="#f87171" stroke="#dc2626" stroke-width="2" rx="8"/>
+                        <text x="600" y="345" text-anchor="middle" font-size="12" font-weight="bold" fill="white">③ 調整</text>
+                        <text x="600" y="365" text-anchor="middle" font-size="10" fill="white">ガスバルブ開度調整</text>
+                        <text x="600" y="380" text-anchor="middle" font-size="10" fill="white">バーナー火力制御</text>
+                    </g>
+                    
+                    <!-- Bottom Message -->
+                    <rect x="200" y="420" width="400" height="60" fill="#059669" stroke="#047857" stroke-width="2" rx="8"/>
+                    <text x="400" y="450" text-anchor="middle" fill="white" font-size="14" font-weight="bold">✅ 同じ制御パターンが適用可能！</text>
+                    <text x="400" y="470" text-anchor="middle" fill="#a7f3d0" font-size="11">給湯器にそのままMBDを適用できる</text>
+                    
+                    <defs>
+                        <marker id="arrow-b" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 z" fill="#3b82f6"/>
+                        </marker>
+                        <marker id="arrow-r" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                            <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+
+            <h3>熱収支モデル</h3>
+
+            <div class="formula-box">
+                <div class="formula">必要熱量 = 比熱 × 流量 × 温度差</div>
+                <div class="example">
+                    具体例：入水温度5℃、目標温度43℃、流量20L/分の場合<br>
+                    必要熱量 = 4.2 kJ/(kg·K) × 20 kg/分 × (43-5)K = <strong>3,192 kJ/分</strong>
+                </div>
+            </div>
+
+            <div class="card success">
+                <h4>✅ 重要なポイント</h4>
+                <p style="margin-bottom: 0;">このようなマクロレベルの熱収支モデルで、<strong>制御ロジックの検証には十分</strong>です。<br>詳細な燃焼化学反応のCFDシミュレーションは不要です。</p>
+            </div>
+        </section>
+
+        <!-- Section 3: マツダSKYACTIV事例 -->
+        <section id="mazda">
+            <h2>3. マツダSKYACTIVエンジン開発事例</h2>
+
+            <div class="card">
+                <p><span class="badge badge-danger">出典</span> MathWorks + 日本経済新聞（2018年）</p>
+                <p style="margin-bottom: 0;"><a href="https://jp.mathworks.com/company/user_stories/mazda-speeds-next-generation-engine-development-of-skyactiv-technology.html" target="_blank">MathWorks事例 →</a></p>
+            </div>
+
+            <h3>事例概要</h3>
+
+            <p>マツダは2000年代初頭、限られた人員（<strong>先行開発30人</strong>）で世界一の高圧縮比ガソリンエンジン（SKYACTIV-G）と低圧縮比ディーゼルエンジン（SKYACTIV-D）の開発に成功しました。</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">30人</div>
+                    <div class="stat-label">先行開発チーム</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">2倍+</div>
+                    <div class="stat-label">生産性向上</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value">14:1</div>
+                    <div class="stat-label">高圧縮比達成</div>
+                </div>
+            </div>
+
+            <h3>燃焼モデリングのアプローチ</h3>
+
+            <div class="key-point">
+                <p><strong>「従来のCAEは役に立たなかった」</strong>（日経記事、2018年）</p>
+            </div>
+
+            <p>高圧縮比14の開発当初、スーパーコンピュータを使った詳細シミュレーションが<strong>「ことごとく計算が合わない」</strong>状況に陥りました。</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">マツダの解決アプローチ：現象理解 → 統計モデル化</div>
+                <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="800" height="400" fill="#f8fafc"/>
+                    
+                    <!-- Problem -->
+                    <g id="problem">
+                        <rect x="50" y="30" width="180" height="90" fill="#fee2e2" stroke="#dc2626" stroke-width="2" rx="8"/>
+                        <text x="140" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c">❌ 従来のCAE</text>
+                        <text x="140" y="75" text-anchor="middle" font-size="10" fill="#b91c1c">スパコンで詳細計算</text>
+                        <text x="140" y="90" text-anchor="middle" font-size="10" fill="#b91c1c">→「ことごとく合わない」</text>
+                        <text x="140" y="110" text-anchor="middle" font-size="9" fill="#dc2626">渦の向きが逆だった！</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 230 75 L 280 75" stroke="#64748b" stroke-width="3" marker-end="url(#arrow-gray)"/>
+                    <text x="255" y="65" text-anchor="middle" font-size="10" fill="#64748b">転換</text>
+                    
+                    <!-- Step 1 -->
+                    <g id="step1">
+                        <rect x="290" y="30" width="150" height="90" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="365" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">Step 1</text>
+                        <text x="365" y="75" text-anchor="middle" font-size="11" fill="#1e40af">現象の可視化</text>
+                        <line x1="310" y1="85" x2="420" y2="85" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="365" y="100" text-anchor="middle" font-size="9" fill="#1e40af">サファイアガラス製</text>
+                        <text x="365" y="112" text-anchor="middle" font-size="9" fill="#1e40af">透明窓付きエンジン</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 440 75 L 460 75" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue2)"/>
+                    
+                    <!-- Step 2 -->
+                    <g id="step2">
+                        <rect x="470" y="30" width="150" height="90" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="545" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">Step 2</text>
+                        <text x="545" y="75" text-anchor="middle" font-size="11" fill="#1e40af">統計モデル作成</text>
+                        <line x1="490" y1="85" x2="600" y2="85" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="545" y="100" text-anchor="middle" font-size="9" fill="#1e40af">MATLAB Model-Based</text>
+                        <text x="545" y="112" text-anchor="middle" font-size="9" fill="#1e40af">Calibration Toolbox</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 620 75 L 640 75" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue2)"/>
+                    
+                    <!-- Step 3 -->
+                    <g id="step3">
+                        <rect x="650" y="30" width="130" height="90" fill="#93c5fd" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="715" y="55" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e3a8a">Step 3</text>
+                        <text x="715" y="75" text-anchor="middle" font-size="11" fill="#1e3a8a">マップ化</text>
+                        <line x1="670" y1="85" x2="760" y2="85" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="715" y="100" text-anchor="middle" font-size="9" fill="#1e3a8a">境界モデル</text>
+                        <text x="715" y="112" text-anchor="middle" font-size="9" fill="#1e3a8a">マップベースモデル</text>
+                    </g>
+                    
+                    <!-- Key Insight Box -->
+                    <rect x="50" y="150" width="700" height="80" fill="#f0fdf4" stroke="#059669" stroke-width="3" rx="12"/>
+                    <text x="400" y="180" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">💡 重要な発見</text>
+                    <text x="400" y="205" text-anchor="middle" font-size="12" fill="#047857">詳細な化学反応モデルではなく、実験計画法に基づく測定データから</text>
+                    <text x="400" y="222" text-anchor="middle" font-size="12" fill="#047857">「エンジン応答の統計モデル」を作成することで成功</text>
+                    
+                    <!-- Application to Water Heater -->
+                    <text x="400" y="270" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f172a">給湯器への適用</text>
+                    
+                    <g id="apply-1">
+                        <rect x="50" y="290" width="220" height="90" fill="#fee2e2" stroke="#dc2626" stroke-width="2" rx="8"/>
+                        <text x="160" y="315" text-anchor="middle" font-size="11" font-weight="bold" fill="#b91c1c">マツダの教訓</text>
+                        <text x="160" y="335" text-anchor="middle" font-size="10" fill="#b91c1c">詳細なCFDシミュレーション</text>
+                        <text x="160" y="350" text-anchor="middle" font-size="10" fill="#b91c1c">は不要</text>
+                        <text x="160" y="368" text-anchor="middle" font-size="9" fill="#b91c1c">現象を可視化して理解する</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 270 335 L 310 335" stroke="#059669" stroke-width="3" marker-end="url(#arrow-green)"/>
+                    
+                    <g id="apply-2">
+                        <rect x="320" y="290" width="220" height="90" fill="#d1fae5" stroke="#059669" stroke-width="2" rx="8"/>
+                        <text x="430" y="315" text-anchor="middle" font-size="11" font-weight="bold" fill="#047857">給湯器への適用</text>
+                        <text x="430" y="335" text-anchor="middle" font-size="10" fill="#047857">熱収支モデルで十分</text>
+                        <text x="430" y="350" text-anchor="middle" font-size="10" fill="#047857">燃焼化学反応の詳細は不要</text>
+                        <text x="430" y="368" text-anchor="middle" font-size="9" fill="#047857">熱交換器・バーナー実験で理解</text>
+                    </g>
+                    
+                    <!-- Arrow -->
+                    <path d="M 540 335 L 580 335" stroke="#059669" stroke-width="3" marker-end="url(#arrow-green)"/>
+                    
+                    <g id="apply-3">
+                        <rect x="590" y="290" width="160" height="90" fill="#059669" stroke="#047857" stroke-width="2" rx="8"/>
+                        <text x="670" y="315" text-anchor="middle" font-size="11" font-weight="bold" fill="white">効率化</text>
+                        <text x="670" y="340" text-anchor="middle" font-size="10" fill="white">運転条件ごとの</text>
+                        <text x="670" y="355" text-anchor="middle" font-size="10" fill="white">燃焼効率マップ</text>
+                        <text x="670" y="373" text-anchor="middle" font-size="9" fill="#a7f3d0">ガス流量-熱量関係</text>
+                    </g>
+                    
+                    <defs>
+                        <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+                        </marker>
+                        <marker id="arrow-blue2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#059669"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+
+            <blockquote>
+                燃料噴霧で発生する渦の向きが、シミュレーションと逆向きだったことを発見。<br>
+                現象を実際に観察・理解した上で、統計モデルを作成することが成功の鍵だった。
+            </blockquote>
+        </section>
+
+        <!-- Section 4: 給湯器へのMBD適用提案 -->
+        <section id="proposal">
+            <h2>4. 給湯器へのMBD適用提案</h2>
+
+            <h3>適用可能性が高い領域</h3>
+
+            <div class="diagram-container">
+                <div class="diagram-title">MBD適用領域マップ</div>
+                <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="800" height="380" fill="#f8fafc"/>
+                    
+                    <!-- High Applicability -->
+                    <text x="200" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">✅ 適用可能性：高</text>
+                    
+                    <g id="area1">
+                        <rect x="30" y="50" width="160" height="100" fill="#d1fae5" stroke="#059669" stroke-width="2" rx="10"/>
+                        <text x="110" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#047857">① 給湯温度制御</text>
+                        <text x="110" y="95" text-anchor="middle" font-size="9" fill="#047857">温度センサー</text>
+                        <text x="110" y="108" text-anchor="middle" font-size="9" fill="#047857">→制御ロジック</text>
+                        <text x="110" y="121" text-anchor="middle" font-size="9" fill="#047857">→ガスバルブ調整</text>
+                        <text x="110" y="140" text-anchor="middle" font-size="8" fill="#059669">熱収支モデル</text>
+                    </g>
+                    
+                    <g id="area2">
+                        <rect x="210" y="50" width="160" height="100" fill="#d1fae5" stroke="#059669" stroke-width="2" rx="10"/>
+                        <text x="290" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#047857">② 追い焚き制御</text>
+                        <text x="290" y="95" text-anchor="middle" font-size="9" fill="#047857">浴槽温度維持</text>
+                        <text x="290" y="108" text-anchor="middle" font-size="9" fill="#047857">循環ポンプ制御</text>
+                        <text x="290" y="121" text-anchor="middle" font-size="9" fill="#047857">目標温度到達時間</text>
+                        <text x="290" y="140" text-anchor="middle" font-size="8" fill="#059669">最適化</text>
+                    </g>
+                    
+                    <g id="area3">
+                        <rect x="30" y="170" width="160" height="100" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" rx="10"/>
+                        <text x="110" y="195" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">③ IoT・EMS連携</text>
+                        <text x="110" y="215" text-anchor="middle" font-size="9" fill="#1e40af">スマホ操作</text>
+                        <text x="110" y="228" text-anchor="middle" font-size="9" fill="#1e40af">見守り機能</text>
+                        <text x="110" y="241" text-anchor="middle" font-size="9" fill="#1e40af">エネルギー管理</text>
+                        <text x="110" y="260" text-anchor="middle" font-size="8" fill="#3b82f6">村田製作所EMS事例参考</text>
+                    </g>
+                    
+                    <g id="area4">
+                        <rect x="210" y="170" width="160" height="100" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" rx="10"/>
+                        <text x="290" y="195" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e40af">④ 製品バリエーション</text>
+                        <text x="290" y="215" text-anchor="middle" font-size="9" fill="#1e40af">給湯専用</text>
+                        <text x="290" y="228" text-anchor="middle" font-size="9" fill="#1e40af">給湯暖房</text>
+                        <text x="290" y="241" text-anchor="middle" font-size="9" fill="#1e40af">エコジョーズ等</text>
+                        <text x="290" y="260" text-anchor="middle" font-size="8" fill="#3b82f6">SPLで派生開発30%削減</text>
+                    </g>
+                    
+                    <!-- Difficult Area -->
+                    <text x="600" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">⚠️ 適用が困難な領域</text>
+                    
+                    <g id="difficult">
+                        <rect x="480" y="50" width="280" height="120" fill="#fee2e2" stroke="#dc2626" stroke-width="2" rx="10"/>
+                        <text x="620" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c">燃焼反応の詳細モデリング</text>
+                        <line x1="500" y1="95" x2="740" y2="95" stroke="#fecaca" stroke-width="1"/>
+                        <text x="620" y="115" text-anchor="middle" font-size="10" fill="#b91c1c">テクノプロ社の指摘：</text>
+                        <text x="620" y="130" text-anchor="middle" font-size="9" fill="#b91c1c">「ガソリンの燃焼反応や化学反応を</text>
+                        <text x="620" y="143" text-anchor="middle" font-size="9" fill="#b91c1c">利用したシステムはモデル化が難しい」</text>
+                        <text x="620" y="160" text-anchor="middle" font-size="9" fill="#dc2626">→MBDには不向き</text>
+                    </g>
+                    
+                    <g id="but">
+                        <rect x="480" y="190" width="280" height="80" fill="#fef3c7" stroke="#d97706" stroke-width="2" rx="10"/>
+                        <text x="620" y="215" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">💡 ただし：</text>
+                        <text x="620" y="235" text-anchor="middle" font-size="10" fill="#92400e">燃焼制御全体ではなく、</text>
+                        <text x="620" y="250" text-anchor="middle" font-size="10" fill="#92400e">空燃比制御・排出ガス制御など</text>
+                        <text x="620" y="265" text-anchor="middle" font-size="10" fill="#d97706">部分的適用は可能（自動車で実績あり）</text>
+                    </g>
+                    
+                    <!-- Bottom summary -->
+                    <rect x="30" y="300" width="740" height="60" fill="#0f172a" stroke="#1e3a8a" stroke-width="2" rx="10"/>
+                    <text x="400" y="325" text-anchor="middle" fill="white" font-size="13" font-weight="bold">📌 結論：「制御系」の部分にMBDを適用することが現実的</text>
+                    <text x="400" y="345" text-anchor="middle" fill="#94a3b8" font-size="11">熱収支レベルのマクロモデルで、温度制御・追い焚き・IoT連携・製品展開に適用可能</text>
+                </svg>
+            </div>
+
+            <h3>段階的導入の提案</h3>
+
+            <div class="diagram-container">
+                <div class="diagram-title">MBD導入ロードマップ</div>
+                <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="800" height="280" fill="#f8fafc"/>
+                    
+                    <!-- Timeline base -->
+                    <line x1="100" y1="140" x2="700" y2="140" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="100" y1="140" x2="700" y2="140" stroke="url(#timeline-gradient)" stroke-width="4" stroke-linecap="round"/>
+                    
+                    <!-- Phase 1 -->
+                    <g id="phase1">
+                        <circle cx="150" cy="140" r="20" fill="#059669" stroke="white" stroke-width="4"/>
+                        <text x="150" y="145" text-anchor="middle" fill="white" font-size="12" font-weight="bold">1</text>
+                        
+                        <rect x="80" y="30" width="140" height="90" fill="#d1fae5" stroke="#059669" stroke-width="2" rx="8"/>
+                        <text x="150" y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#047857">第1段階</text>
+                        <text x="150" y="68" text-anchor="middle" font-size="10" fill="#047857">温度制御系の</text>
+                        <text x="150" y="82" text-anchor="middle" font-size="10" fill="#047857">モデル化</text>
+                        <text x="150" y="100" text-anchor="middle" font-size="9" fill="#059669">（熱収支モデル）</text>
+                        <line x1="150" y1="120" x2="150" y2="120" stroke="#059669" stroke-width="2"/>
+                        
+                        <rect x="80" y="175" width="140" height="50" fill="#f0fdf4" stroke="#059669" stroke-width="1" rx="6"/>
+                        <text x="150" y="195" text-anchor="middle" font-size="9" fill="#047857">実機試作削減</text>
+                        <text x="150" y="210" text-anchor="middle" font-size="9" fill="#047857">パラメータ最適化</text>
+                    </g>
+                    
+                    <!-- Phase 2 -->
+                    <g id="phase2">
+                        <circle cx="400" cy="140" r="20" fill="#3b82f6" stroke="white" stroke-width="4"/>
+                        <text x="400" y="145" text-anchor="middle" fill="white" font-size="12" font-weight="bold">2</text>
+                        
+                        <rect x="330" y="30" width="140" height="90" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                        <text x="400" y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">第2段階</text>
+                        <text x="400" y="68" text-anchor="middle" font-size="10" fill="#1e40af">製品バリエーション</text>
+                        <text x="400" y="82" text-anchor="middle" font-size="10" fill="#1e40af">展開</text>
+                        <text x="400" y="100" text-anchor="middle" font-size="9" fill="#3b82f6">（SPL導入）</text>
+                        
+                        <rect x="330" y="175" width="140" height="50" fill="#eff6ff" stroke="#3b82f6" stroke-width="1" rx="6"/>
+                        <text x="400" y="195" text-anchor="middle" font-size="9" fill="#1e40af">派生開発工数</text>
+                        <text x="400" y="210" text-anchor="middle" font-size="9" font-weight="bold" fill="#1e40af">30%削減</text>
+                    </g>
+                    
+                    <!-- Phase 3 -->
+                    <g id="phase3">
+                        <circle cx="650" cy="140" r="20" fill="#d97706" stroke="white" stroke-width="4"/>
+                        <text x="650" y="145" text-anchor="middle" fill="white" font-size="12" font-weight="bold">3</text>
+                        
+                        <rect x="580" y="30" width="140" height="90" fill="#fef3c7" stroke="#d97706" stroke-width="2" rx="8"/>
+                        <text x="650" y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">第3段階</text>
+                        <text x="650" y="68" text-anchor="middle" font-size="10" fill="#92400e">IoT・</text>
+                        <text x="650" y="82" text-anchor="middle" font-size="10" fill="#92400e">カーボンニュートラル</text>
+                        <text x="650" y="100" text-anchor="middle" font-size="9" fill="#d97706">対応</text>
+                        
+                        <rect x="580" y="175" width="140" height="50" fill="#fffbeb" stroke="#d97706" stroke-width="1" rx="6"/>
+                        <text x="650" y="195" text-anchor="middle" font-size="9" fill="#92400e">新機能開発の加速</text>
+                        <text x="650" y="210" text-anchor="middle" font-size="9" fill="#92400e">エネルギー管理最適化</text>
+                    </g>
+                    
+                    <!-- Arrows between phases -->
+                    <path d="M 220 140 L 330 140" stroke="#10b981" stroke-width="2" stroke-dasharray="5,5"/>
+                    <path d="M 470 140 L 580 140" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="timeline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#059669"/>
+                            <stop offset="50%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#d97706"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <h3>リンナイへの期待効果</h3>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">30%</div>
+                    <div class="stat-label">リードタイム短縮<br><small>（MBDで50%削減実績あり）</small></div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">30%</div>
+                    <div class="stat-label">業務効率向上<br><small>（実機試作削減・手戻り削減）</small></div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value">↑</div>
+                    <div class="stat-label">品質向上<br><small>（早期検証・網羅的検証）</small></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>効果項目</th>
+                            <th>期待効果（他社実績ベース）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>開発期間短縮</strong></td>
+                            <td>30%リードタイム短縮（目標値に対し、MBDで50%削減実績あり）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>業務効率向上</strong></td>
+                            <td>30%業務効率向上（実機試作削減、シミュレーション検証による手戻り削減）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>品質向上</strong></td>
+                            <td>早期検証による設計ミス削減、異常系含む網羅的検証</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 5: まとめ -->
+        <section id="summary">
+            <h2>5. まとめと今後の検討事項</h2>
+
+            <h3>主要な知見</h3>
+
+            <div class="card success">
+                <h4>✅ 給湯器の温度制御は、熱収支レベルのマクロモデルで十分</h4>
+                <p style="margin-bottom: 0;">詳細なCFD燃焼シミュレーションは不要。エアコン事例で実証済み。</p>
+            </div>
+
+            <div class="card primary">
+                <h4>✅ マツダの「現象理解→統計モデル化」アプローチが有効</h4>
+                <p style="margin-bottom: 0;">実験で現象を理解した上で、統計モデル・マップベースモデルを作成。生産性2倍以上。</p>
+            </div>
+
+            <div class="card highlight">
+                <h4>✅ 段階的導入が現実的</h4>
+                <p style="margin-bottom: 0;">第1段階：温度制御系からスタート → 第2段階：製品バリエーション展開（SPL） → 第3段階：IoT・カーボンニュートラル対応</p>
+            </div>
+
+            <h3>今後の検討事項（面談で確認したい点）</h3>
+
+            <div class="card">
+                <ul>
+                    <li>現状の開発プロセス（特に制御開発の工数内訳）</li>
+                    <li>実機試作の頻度と課題</li>
+                    <li>製品バリエーションの開発負荷</li>
+                    <li>CAE/シミュレーション活用の現状</li>
+                    <li>IoT・カーボンニュートラル対応の開発ニーズ</li>
+                </ul>
+            </div>
+
+            <h3>参考文献</h3>
+
+            <div class="card">
+                <ol style="font-size: 0.9rem;">
+                    <li>電通総研「モデルベース開発（MBD）におけるメカ・制御連携の考え方」2023年1月<br>
+                        <a href="https://mfg.dentsusoken.com/blog/detail/001416.php" target="_blank">https://mfg.dentsusoken.com/blog/detail/001416.php</a></li>
+                    <li>MathWorks「マツダが『SKYACTIV TECHNOLOGY』における次世代エンジン技術の開発を加速」<br>
+                        <a href="https://jp.mathworks.com/company/user_stories/mazda-speeds-next-generation-engine-development-of-skyactiv-technology.html" target="_blank">MathWorksユーザー事例</a></li>
+                    <li>日本経済新聞「マツダ、スカイアクティブ成功の鍵はモデルベース開発」2018年10月</li>
+                    <li>マツダ「SKYACTIV-Zへの挑戦」2025年3月<br>
+                        <a href="https://www.mazda.com/ja/mazda-mirai-base/articles/20250319-multisolution-skyactivez/" target="_blank">マツダ未来ベース</a></li>
+                    <li>MathWorks「モデルベース開発（MBD）」<br>
+                        <a href="https://jp.mathworks.com/discovery/mbd.html" target="_blank">https://jp.mathworks.com/discovery/mbd.html</a></li>
+                    <li>村田製作所「モデルベース開発によるエネルギー管理システム開発期間50%以上短縮」</li>
+                    <li>オムロン「ソフトウェアプロダクトライン開発の実践と効果」オムロンテクニクス 2019<br>
+                        <a href="https://www.omron.com/jp/ja/technology/omrontechnics/2019/20190510-harada.html" target="_blank">オムロンテクニクス</a></li>
+                </ol>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 リンナイ株式会社 MBD調査資料 | 調査実施日：2026年1月31日</p>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section, .diagram-container, .card, .stats-grid').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
